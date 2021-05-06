@@ -111,7 +111,13 @@ class GenericConsumer:
 
       channel.basic_ack(delivery_tag = method.delivery_tag)
 
-    channel.basic_consume(queue=self._queue, on_message_callback=generic_callback)
+    while True:
+      try:
+        channel.basic_consume(queue=self._queue, on_message_callback=generic_callback)
+      except:
+        print("Connection error.  Backing off for 5 seconds...")
+        time.sleep(5)
+      break
 
     # capture CTRL-C
     def signal_handler(signal,frame):
