@@ -16,7 +16,14 @@ class QueueWriter:
   def connect(self):
     # connect to RabbitMQ
     credentials = pika.PlainCredentials(self._user, self._password )
-    self.connection = pika.BlockingConnection(pika.ConnectionParameters(host=self._host,credentials=credentials ))
+    while True:
+      try:
+        self.connection = pika.BlockingConnection(pika.ConnectionParameters(host=self._host,credentials=credentials ))
+      except:
+        print("Connection error.  Waiting 5 seconds...")
+        time.sleep(5)
+      break
+    
     self.channel = self.connection.channel()
 
     # create queue if it does not exist
