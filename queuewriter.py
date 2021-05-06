@@ -1,4 +1,5 @@
 import pika
+import time
 
 class QueueWriter:
   def __init__(self,user,password,host,port,exchange, queue, key, verbose):
@@ -33,4 +34,10 @@ class QueueWriter:
     
   def enqueueMessage(self, i):
     if self._verbose: print("Enqueuing %d with key %s"%(i, self._key))
-    self.channel.basic_publish(exchange=self._exchange, routing_key=self._key, body=str(i))
+    while True:
+      try:
+        self.channel.basic_publish(exchange=self._exchange, routing_key=self._key, body=str(i))
+      except:
+        print("Encountered an error... trying again")
+        time.sleep(5)
+      break
